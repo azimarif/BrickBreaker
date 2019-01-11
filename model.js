@@ -70,3 +70,27 @@ class Ball {
     this.bottom = bottom;
   }
 }
+
+const isHitSideWall = function (ball, screen) {
+  return ball.left > screen.width - ball.width || ball.left < 0;
+}
+
+const isHitTopWall = function (ball, screen) {
+  return ball.bottom > screen.height - ball.height;
+}
+
+const isHitBottom = function (ball, paddle) {
+  return ball.bottom < paddle.height;
+}
+
+const isBallOverPeddle = function (ball, paddle) {
+  return ball.left >= paddle.left && ball.left <= paddle.left + paddle.width;
+}
+
+const isHitPeddle = function (ball, screen, paddle) {
+  return isBallOverPeddle(ball, paddle) && isHitBottom(ball, paddle);
+}
+
+const isGameOver = function (ball, screen, paddle) {
+  return isHitBottom(ball, paddle) && !isHitPeddle(ball, screen, paddle);
+}
