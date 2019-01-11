@@ -1,12 +1,14 @@
 .screen{
   border: 1px solid black;
-  height: 600px;
-  width: 960px;
   margin: 0 auto;
   position: relative;
   text-decoration: none;
 }
 
+.bricks{
+  background-color: black;
+  position: absolute;
+}
 .paddle {
   background-color: black;
   position: absolute;
