@@ -19,25 +19,29 @@ const createPaddle = function (document, paddle) {
   drawPaddle(paddleDiv, paddle);
   document.getElementById('gameScreen').appendChild(paddleDiv);
   document.getElementById('gameScreen').focus();
+  return paddleDiv;
 };
 
-const handleEvent = function (document, paddle) {
+const handleEvent = function (paddleDiv, paddle) {
   if (event.keyCode == LEFT_KEY) {
     paddle.moveLeft();
-    let paddleDiv = document.getElementById('paddleDiv');
-    drawPaddle(paddleDiv, paddle);
+    if (paddle.left >= 0) {
+      drawPaddle(paddleDiv, paddle);
+    }
   }
   if (event.keyCode == RIGHT_KEY) {
     paddle.moveRight();
-    let paddleDiv = document.getElementById('paddleDiv');
-    drawPaddle(paddleDiv, paddle);
+    if (paddle.left <= 860) {
+      console.log(paddle.left);
+      drawPaddle(paddleDiv, paddle);
+    }
   }
 }
 
 const initialize = function () {
   let paddle = new Paddle(100, 20, 430, 5);
-  createPaddle(document, paddle);
-  document.getElementById('gameScreen').onkeydown = () => { handleEvent(document, paddle); }
+  let paddleDiv = createPaddle(document, paddle);
+  document.getElementById('gameScreen').onkeydown = () => { handleEvent(paddleDiv, paddle); }
 };
 
 window.onload = initialize;
