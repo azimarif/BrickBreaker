@@ -4,13 +4,10 @@
   width: 960px;
   margin: 0 auto;
   position: relative;
+  text-decoration: none;
 }
 
 .paddle {
   background-color: black;
   position: absolute;
-  width: 100px;
-  height: 20px;
-  bottom: 5px;
-  left: 430px;
 }
