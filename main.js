@@ -62,14 +62,29 @@ const drawBricks = function (bricks, screen) {
   });
 };
 
+const drawBall = function (screen, ball) {
+  let ballDiv = document.createElement('div');
+  ballDiv.className = 'ball';
+  ballDiv.style.width = addSuffixPixel(ball.width);
+  ballDiv.style.height = addSuffixPixel(ball.height);
+  ballDiv.style.bottom = addSuffixPixel(ball.bottom);
+  ballDiv.style.left = addSuffixPixel(ball.left);
+  screen.appendChild(ballDiv);
+}
+
 const initialize = function () {
-  let paddle = new Paddle(100, 20, 430, 5);
   let screen = new Screen(960, 600);
   let screenElement = createScreen(document, screen);
-  let paddleDiv = createPaddle(document, paddle);
-  let bricks = new Bricks(9, 6, 70, 25);
 
+  let paddle = new Paddle(100, 25, 430, 5);
+  let paddleDiv = createPaddle(document, paddle);
+
+  let bricks = new Bricks(9, 6, 70, 25);
   drawBricks(bricks.createBricks(), screenElement);
+
+  let ball = new Ball(30, 30, 465, 30);
+  drawBall(screenElement, ball);
+
   document.getElementById('gameScreen').onkeydown = () => {
     handleEvent(paddleDiv, paddle);
   };

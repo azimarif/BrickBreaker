@@ -6,10 +6,16 @@
 }
 
 .bricks{
-  background-color: black;
+  background-color: brown;
   position: absolute;
 }
 .paddle {
   background-color: black;
   position: absolute;
+}
+
+.ball {
+  position: absolute;
+  border-radius: 100%;
+  background: green;
 }

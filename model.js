@@ -1,17 +1,18 @@
 class Paddle {
-  constructor(width, height, left, bottom) {
+  constructor(width, height, left, bottom, speed = 10) {
     this.width = width;
     this.height = height;
     this.left = left;
     this.bottom = bottom;
+    this.speed = speed;
   }
 
   moveLeft() {
-    this.left = this.left - 10;
+    this.left = this.left - this.speed;
   }
 
   moveRight() {
-    this.left = this.left + 10;
+    this.left = this.left + this.speed;
   }
 }
 
@@ -38,17 +39,19 @@ class Bricks {
   createBricks() {
     let bricks = [];
     for (let row = 0; row < this.numberOfBricksRow; row++) {
-      this.createBricksByRow(row, bricks);
+      bricks = bricks.concat(this.createBricksByRow(row));
     }
     return bricks;
   }
 
-  createBricksByRow(row, bricks) {
+  createBricksByRow(row) {
+    let bricks = [];
     for (let column = 0; column < this.numberOfBricksPerRow; column++) {
       let left = column * (this.width + this.horizontalMargin) + this.horizontalMargin;
       let top = row * (this.height + this.verticalMargin) + this.verticalMargin;
       bricks.push(new Brick(this.width, this.height, left, top, true));
     }
+    return bricks;
   }
 }
 
@@ -56,5 +59,14 @@ class Screen {
   constructor(width, height) {
     this.width = width;
     this.height = height;
+  }
+}
+
+class Ball {
+  constructor(width, height, left, bottom) {
+    this.width = width;
+    this.height = height;
+    this.left = left;
+    this.bottom = bottom;
   }
 }
