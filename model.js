@@ -63,20 +63,19 @@ class Screen {
 }
 
 class Ball {
-  constructor(width, height, left, bottom) {
-    this.width = width;
-    this.height = height;
+  constructor(radius, left, bottom) {
+    this.radius = radius;
     this.left = left;
     this.bottom = bottom;
   }
 }
 
 const isHitSideWall = function (ball, screen) {
-  return ball.left > screen.width - ball.width || ball.left < 0;
+  return ball.left > screen.width - ball.radius || ball.left < 0;
 }
 
 const isHitTopWall = function (ball, screen) {
-  return ball.bottom > screen.height - ball.height;
+  return ball.bottom > screen.height - ball.radius;
 }
 
 const isHitBottom = function (ball, paddle) {
@@ -87,10 +86,17 @@ const isBallOverPeddle = function (ball, paddle) {
   return ball.left >= paddle.left && ball.left <= paddle.left + paddle.width;
 }
 
-const isHitPeddle = function (ball, screen, paddle) {
+const isHitPeddle = function (ball, paddle) {
   return isBallOverPeddle(ball, paddle) && isHitBottom(ball, paddle);
 }
 
-const isGameOver = function (ball, screen, paddle) {
-  return isHitBottom(ball, paddle) && !isHitPeddle(ball, screen, paddle);
+const isGameOver = function (ball, paddle) {
+  return isHitBottom(ball, paddle) && !isHitPeddle(ball, paddle);
+}
+
+class Velocity {
+  constructor(dx, dy){
+    this.dx = dx;
+    this.dy= dy;
+  }
 }
