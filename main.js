@@ -54,7 +54,7 @@ const styleBricks = function (brickElement, brick) {
   if (brick.status) {
     brickElement.style.width = addSuffixPixel(brick.width);
     brickElement.style.height = addSuffixPixel(brick.height);
-    brickElement.style.top = addSuffixPixel(brick.top);
+    brickElement.style.bottom = addSuffixPixel(brick.bottom);
     brickElement.style.left = addSuffixPixel(brick.left);
     brickElement.className = 'bricks';
   }
@@ -89,15 +89,16 @@ const drawBall = function (screen, ball) {
 }
 
 const updateBall = function (ballDiv, ball, screen, paddle, velocity) {
-  ball.left = ball.left + velocity.dx;
-  ball.bottom = ball.bottom + velocity.dy;
+  let ballVelocity = velocity;
+  ball.left = ball.left + ballVelocity.dx;
+  ball.bottom = ball.bottom + ballVelocity.dy;
 
   if (isHitSideWall(ball, screen)) {
-    velocity.dx = -velocity.dx;
+    ballVelocity.dx = -ballVelocity.dx;
   }
-  
+
   if (isHitTopWall(ball, screen) || isHitPeddle(ball, paddle)) {
-    velocity.dy = -velocity.dy;
+    ballVelocity.dy = -ballVelocity.dy;
   }
 
   if (isGameOver(ball, paddle)) {
@@ -105,16 +106,17 @@ const updateBall = function (ballDiv, ball, screen, paddle, velocity) {
   }
 
   styleBall(ballDiv, ball);
-  return velocity;
+  return ballVelocity;
 }
 
 const breakBricks = function (bricks, ball, screenElement, velocity) {
+  let ballVelocity = velocity;
   bricks.forEach((brick) => {
     if (brick.status) {
       let sameColumn = ball.left > brick.left && ball.left < brick.left + brick.width;
-      let sameRow = ball.bottom > 575 - brick.top && ball.bottom < 575 - brick.top + brick.height;
+      let sameRow = ball.bottom > brick.bottom - brick.height && ball.bottom < brick.bottom + brick.height;
       if (sameColumn && sameRow) {
-        velocity.dy = -velocity.dy;
+        ballVelocity.dy = -ballVelocity.dy;
         brick.status = false;
       }
     }
@@ -124,7 +126,7 @@ const breakBricks = function (bricks, ball, screenElement, velocity) {
     elements[0].parentNode.removeChild(elements[0]);
   }
   drawBricks(bricks, screenElement);
-  return velocity;
+  return ballVelocity;
 }
 
 const initialize = function () {
@@ -144,11 +146,11 @@ const initialize = function () {
     handleEvent(paddleDiv, paddle);
   };
 
-  let velocity = new Velocity(3, 3);
+  let velocity = new Velocity(2, 2);
   setInterval(() => {
     velocity = updateBall(ballDiv, ball, screen, paddle, velocity);
     velocity = breakBricks(a, ball, screenElement, velocity);
-  }, 20);
+  }, 10);
 };
 
 window.onload = initialize;

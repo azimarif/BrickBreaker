@@ -17,11 +17,11 @@ class Paddle {
 }
 
 class Brick {
-  constructor(width, height, left, top, status) {
+  constructor(width, height, left, bottom, status) {
     this.width = width;
     this.height = height;
     this.left = left;
-    this.top = top;
+    this.bottom = bottom;
     this.status = status;
   }
 }
@@ -48,8 +48,8 @@ class Bricks {
     let bricks = [];
     for (let column = 0; column < this.numberOfBricksPerRow; column++) {
       let left = column * (this.width + this.horizontalMargin) + this.horizontalMargin;
-      let top = row * (this.height + this.verticalMargin) + this.verticalMargin;
-      bricks.push(new Brick(this.width, this.height, left, top, true));
+      let bottom = 550 - row * (this.height + this.verticalMargin) + this.verticalMargin;
+      bricks.push(new Brick(this.width, this.height, left, bottom, true));
     }
     return bricks;
   }
