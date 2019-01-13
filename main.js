@@ -1,24 +1,34 @@
 const LEFT_KEY = 37;
 const RIGHT_KEY = 39;
 
-const addSuffixPixel = function (value) {
-  return value + 'px';
-};
+const getBody = document => document.getElementsByTagName('body')[0];
+const getGameScreen = document => document.getElementById('gameScreen');
 
-const drawPaddle = function (paddleDiv, paddle) {
-  paddleDiv.className = 'paddle';
-  paddleDiv.style.width = addSuffixPixel(paddle.width);
-  paddleDiv.style.height = addSuffixPixel(paddle.height);
-  paddleDiv.style.left = addSuffixPixel(paddle.left);
-  paddleDiv.style.bottom = addSuffixPixel(paddle.bottom);
-};
+const addSuffixPixel = value => value + 'px';
+
+const setElementPosition = function (element, position) {
+  element.style.left = addSuffixPixel(position.left);
+  element.style.bottom = addSuffixPixel(position.bottom);
+}
+
+const setElementDimension = function (element, width, height) {
+  element.style.width = addSuffixPixel(width);
+  element.style.height = addSuffixPixel(height);
+}
+
+const setElementIDAndClass = function (element, id, className) {
+  element.id = id;
+  element.className = className;
+}
 
 const createPaddle = function (document, paddle) {
   let paddleDiv = document.createElement('div');
-  paddleDiv.id = 'paddleDiv';
-  drawPaddle(paddleDiv, paddle);
-  document.getElementById('gameScreen').appendChild(paddleDiv);
-  document.getElementById('gameScreen').focus();
+  setElementIDAndClass(paddleDiv, 'paddleDiv', 'paddle');
+  setElementDimension(paddleDiv, paddle.width, paddle.height);
+  setElementPosition(paddleDiv, paddle);
+  let gameScreen = getGameScreen(document);
+  gameScreen.appendChild(paddleDiv);
+  gameScreen.focus();
   return paddleDiv;
 };
 
@@ -26,64 +36,48 @@ const handleEvent = function (paddleDiv, paddle) {
   if (event.keyCode == LEFT_KEY) {
     if (paddle.left > 0) {
       paddle.moveLeft();
-      drawPaddle(paddleDiv, paddle);
+      setElementDimension(paddleDiv, paddle.width, paddle.height);
+      setElementPosition(paddleDiv, paddle);
     }
   }
   if (event.keyCode == RIGHT_KEY) {
     if (paddle.left <= 850) {
       paddle.moveRight();
-      drawPaddle(paddleDiv, paddle);
+      setElementDimension(paddleDiv, paddle.width, paddle.height);
+      setElementPosition(paddleDiv, paddle);
     }
   }
 };
 
 const createScreen = function (document, screen) {
-  let body = document.getElementsByTagName('body')[0];
+  let body = getBody(document);
   let screenElement = document.createElement('main');
-  screenElement.id = 'gameScreen';
   screenElement.tabIndex = '0';
-  screenElement.className = 'screen';
-  screenElement.style.width = addSuffixPixel(screen.width);
-  screenElement.style.height = addSuffixPixel(screen.height);
+  setElementIDAndClass(screenElement, 'gameScreen', 'screen');
+  setElementDimension(screenElement, screen.width, screen.height);
   body.appendChild(screenElement);
-
   return screenElement;
 };
-
-const styleBricks = function (brickElement, brick) {
-  if (brick.status) {
-    brickElement.style.width = addSuffixPixel(brick.width);
-    brickElement.style.height = addSuffixPixel(brick.height);
-    brickElement.style.bottom = addSuffixPixel(brick.bottom);
-    brickElement.style.left = addSuffixPixel(brick.left);
-    brickElement.className = 'bricks';
-  }
-}
 
 const drawBricks = function (bricks, screen) {
   let brickElement;
   bricks.forEach(brick => {
     if (brick.status) {
       brickElement = document.createElement('div');
-      styleBricks(brickElement, brick);
+      setElementIDAndClass(brickElement, `brick_${brick.left}_${brick.bottom}`, 'bricks');
+      setElementDimension(brickElement, brick.width, brick.height);
+      setElementPosition(brickElement, brick);
       screen.appendChild(brickElement);
     }
   });
   return brickElement;
 };
 
-const styleBall = function (ballDiv, ball) {
-  ballDiv.style.width = addSuffixPixel(ball.radius);
-  ballDiv.style.height = addSuffixPixel(ball.radius);
-  ballDiv.style.bottom = addSuffixPixel(ball.bottom);
-  ballDiv.style.left = addSuffixPixel(ball.left);
-}
-
 const drawBall = function (screen, ball) {
   let ballDiv = document.createElement('div');
-  ballDiv.className = 'ball';
-  ballDiv.id = 'ball_1';
-  styleBall(ballDiv, ball);
+  setElementIDAndClass(ballDiv, 'ball_1', 'ball');
+  setElementDimension(ballDiv, ball.radius, ball.radius);
+  setElementPosition(ballDiv, ball);
   screen.appendChild(ballDiv);
   return ballDiv;
 }
@@ -105,13 +99,15 @@ const updateBall = function (ballDiv, ball, screen, paddle, velocity) {
     window.location.reload();
   }
 
-  styleBall(ballDiv, ball);
+  setElementDimension(ballDiv, ball.radius, ball.radius);
+  setElementPosition(ballDiv, ball);
   return ballVelocity;
 }
 
 const breakBricks = function (bricks, ball, screenElement, velocity) {
+  let brokenBricks = bricks.filter(brick => brick.status != true);
   let ballVelocity = velocity;
-  bricks.forEach((brick) => {
+  bricks.map((brick) => {
     if (brick.status) {
       let sameColumn = ball.left > brick.left && ball.left < brick.left + brick.width;
       let sameRow = ball.bottom > brick.bottom - brick.height && ball.bottom < brick.bottom + brick.height;
@@ -121,11 +117,12 @@ const breakBricks = function (bricks, ball, screenElement, velocity) {
       }
     }
   });
-  let elements = document.getElementsByClassName('bricks');
-  while (elements.length > 0) {
-    elements[0].parentNode.removeChild(elements[0]);
+  let currentBrokenBricks = bricks.filter(brick => brick.status != true);
+  if (brokenBricks != currentBrokenBricks) {
+    let brickElement = document.getElementsByClassName('bricks');
+    brickElement.forEach(brick => { brick.parentNode.removeChild(brick) });
+    drawBricks(bricks, screenElement);
   }
-  drawBricks(bricks, screenElement);
   return ballVelocity;
 }
 
@@ -136,20 +133,18 @@ const initialize = function () {
   let paddle = new Paddle(100, 25, 430, 5);
   let paddleDiv = createPaddle(document, paddle);
 
-  let bricks = new Bricks(9, 6, 70, 25);
-  a = bricks.createBricks();
+  let bricksDetail = new Bricks(9, 6, 70, 25);
+  let bricks = bricksDetail.createBricks();
 
-  drawBricks(a, screenElement);
+  drawBricks(bricks, screenElement);
   let ball = new Ball(30, 465, 30);
   let ballDiv = drawBall(screenElement, ball);
-  document.getElementById('gameScreen').onkeydown = () => {
-    handleEvent(paddleDiv, paddle);
-  };
+  getGameScreen(document).onkeydown = () => { handleEvent(paddleDiv, paddle); };
 
   let velocity = new Velocity(2, 2);
   setInterval(() => {
     velocity = updateBall(ballDiv, ball, screen, paddle, velocity);
-    velocity = breakBricks(a, ball, screenElement, velocity);
+    velocity = breakBricks(bricks, ball, screenElement, velocity);
   }, 10);
 };
 
