@@ -8,11 +8,23 @@ class Paddle {
   }
 
   moveLeft() {
-    this.left = this.left - this.speed;
+    this.left = Math.max(this.left - this.speed, 0);
   }
 
   moveRight() {
-    this.left = this.left + this.speed;
+    this.left = Math.min(this.left + this.speed, 860);
+  }
+
+  isYCoordinateMatch(yPosition) {
+    return yPosition < this.height;
+  }
+
+  isXCoordinateMatch(xPosition) {
+    return xPosition >= this.left && xPosition <= this.left + this.width;
+  }
+
+  isHitPeddle(xPosition, yPosition) {
+    return this.isXCoordinateMatch(xPosition) && this.isYCoordinateMatch(yPosition);
   }
 }
 
@@ -60,6 +72,18 @@ class Screen {
     this.width = width;
     this.height = height;
   }
+
+  isHitSideScreen(xPosition, width) {
+    return xPosition > this.width - width || xPosition < 0;
+  }
+
+  isHitTopScreen(yPosition, height) {
+    return yPosition > this.height - height;
+  }
+
+  isHitBottom(yPosition) {
+    return yPosition < 0;
+  }
 }
 
 class Ball {
@@ -70,33 +94,23 @@ class Ball {
   }
 }
 
-const isHitSideWall = function (ball, screen) {
-  return ball.left > screen.width - ball.radius || ball.left < 0;
-}
-
-const isHitTopWall = function (ball, screen) {
-  return ball.bottom > screen.height - ball.radius;
-}
-
-const isHitBottom = function (ball, paddle) {
-  return ball.bottom < paddle.height;
-}
-
-const isBallOverPeddle = function (ball, paddle) {
-  return ball.left >= paddle.left && ball.left <= paddle.left + paddle.width;
-}
-
-const isHitPeddle = function (ball, paddle) {
-  return isBallOverPeddle(ball, paddle) && isHitBottom(ball, paddle);
-}
-
-const isGameOver = function (ball, paddle) {
-  return isHitBottom(ball, paddle) && !isHitPeddle(ball, paddle);
-}
-
 class Velocity {
-  constructor(dx, dy){
+  constructor(dx, dy) {
     this.dx = dx;
-    this.dy= dy;
+    this.dy = dy;
+  }
+}
+
+class Game {
+  constructor() {
+    this.screen = new Screen(960, 600);
+    this.paddle = new Paddle(100, 25, 430, 5);
+    this.bricksDetail = new Bricks(9, 6, 70, 25);
+    this.ball = new Ball(30, 465, 30);
+    this.velocity = new Velocity(2, 2);
+  }
+
+  isGameOver() {
+    return this.screen.isHitBottom(this.ball.bottom);
   }
 }
