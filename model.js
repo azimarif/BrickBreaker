@@ -12,7 +12,7 @@ class Paddle {
   }
 
   moveRight() {
-    this.left = Math.min(this.left + this.speed, 860);
+    this.left = Math.min(this.left + this.speed, 960 - this.width);
   }
 
   isYCoordinateMatch(yPosition) {
@@ -92,12 +92,25 @@ class Ball {
     this.left = left;
     this.bottom = bottom;
   }
+
+  moveBall(dx, dy){
+    this.left = this.left + dx;
+    this.bottom = this.bottom + dy;
+  }
 }
 
 class Velocity {
   constructor(dx, dy) {
     this.dx = dx;
     this.dy = dy;
+  }
+
+  toggleDx() {
+    this.dx = -this.dx;
+  }
+
+  toggleDy() {
+    this.dy = -this.dy;
   }
 }
 
@@ -112,5 +125,18 @@ class Game {
 
   isGameOver() {
     return this.screen.isHitBottom(this.ball.bottom);
+  }
+
+  updateXVelocity() {
+    if (this.screen.isHitSideScreen(this.ball.left, this.ball.radius)) {
+      this.velocity.toggleDx();
+    }
+  }
+
+  updateYVelocity() {
+    if (this.screen.isHitTopScreen(this.ball.bottom, this.ball.radius, this.velocity.dy) ||
+      this.paddle.isHitPeddle(this.ball.left, this.ball.bottom, this.velocity.dy)) {
+      this.velocity.toggleDy();
+    }
   }
 }

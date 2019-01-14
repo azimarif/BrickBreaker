@@ -32,17 +32,15 @@ const createPaddle = function (document, paddle) {
   return paddleDiv;
 };
 
-const handleEvent = function (paddleDiv, paddle) {
+const handleEvent = function(paddleDiv, paddle) {
   if (event.keyCode == LEFT_KEY) {
     paddle.moveLeft();
-    setElementDimension(paddleDiv, paddle.width, paddle.height);
-    setElementPosition(paddleDiv, paddle);
   }
   if (event.keyCode == RIGHT_KEY) {
     paddle.moveRight();
-    setElementDimension(paddleDiv, paddle.width, paddle.height);
-    setElementPosition(paddleDiv, paddle);
   }
+  setElementDimension(paddleDiv, paddle.width, paddle.height);
+  setElementPosition(paddleDiv, paddle);
 };
 
 const createScreen = function (document, screen) {
@@ -55,7 +53,7 @@ const createScreen = function (document, screen) {
   return screenElement;
 };
 
-const drawBricks = function (bricks, screen) {
+const drawBricks = function (document, bricks, screen) {
   let brickElement;
   bricks.forEach(brick => {
     if (brick.status) {
@@ -78,43 +76,33 @@ const drawBall = function (screen, ball) {
   return ballDiv;
 }
 
-const updateBall = function (ballDiv, game, velocity) {
-  let ballVelocity = velocity;
-  game.ball.left = game.ball.left + ballVelocity.dx;
-  game.ball.bottom = game.ball.bottom + ballVelocity.dy;
-
-  if (game.screen.isHitSideScreen(game.ball.left, game.ball.radius)) {
-    ballVelocity.dx = -ballVelocity.dx;
-  }
-
-  if (game.screen.isHitTopScreen(game.ball.bottom, game.ball.radius) || game.paddle.isHitPeddle(game.ball.left, game.ball.bottom)) {
-    ballVelocity.dy = -ballVelocity.dy;
-  }
+const updateBallPosition = function (ballDiv, game) {
+  game.ball.moveBall(game.velocity.dx, game.velocity.dy);
 
   if (game.isGameOver(game.ball, game.paddle)) {
     window.location.reload();
   }
 
+  game.updateXVelocity();
+  game.updateYVelocity();
+
   setElementDimension(ballDiv, game.ball.radius, game.ball.radius);
   setElementPosition(ballDiv, game.ball);
-  return ballVelocity;
 }
 
 const breakBricks = function (bricks, ball, document, velocity) {
-  let ballVelocity = velocity;
   bricks.map((brick) => {
     if (brick.status) {
       let currentBrickElement = document.getElementById(`brick_${brick.left}_${brick.bottom}`);
       let sameColumn = ball.left > brick.left && ball.left < brick.left + brick.width;
       let sameRow = ball.bottom > brick.bottom - brick.height && ball.bottom < brick.bottom + brick.height;
       if (sameColumn && sameRow) {
-        ballVelocity.dy = -ballVelocity.dy;
+        velocity.dy = -velocity.dy;
         brick.status = false;
         currentBrickElement.parentElement.removeChild(currentBrickElement);
       }
     }
   });
-  return ballVelocity;
 }
 
 const initialize = function () {
@@ -122,14 +110,14 @@ const initialize = function () {
   let screenElement = createScreen(document, game.screen);
   let paddleDiv = createPaddle(document, game.paddle);
   let bricks = game.bricksDetail.createBricks();
-
-  drawBricks(bricks, screenElement);
-  let ballDiv = drawBall(screenElement, game.ball);
-  getGameScreen(document).onkeydown = () => { handleEvent(paddleDiv, game.paddle); };
   let velocity = game.velocity;
+
+  drawBricks(document,bricks, screenElement);
+  getGameScreen(document).onkeydown =  handleEvent.bind(null, paddleDiv, game.paddle);
+  let ballDiv = drawBall(screenElement, game.ball);
   setInterval(() => {
-    velocity = updateBall(ballDiv, game, velocity);
-    velocity = breakBricks(bricks, game.ball, document, velocity);
+    breakBricks(bricks, game.ball, document, velocity);
+    updateBallPosition(ballDiv, game);
   }, 10);
 };
 

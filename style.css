@@ -8,6 +8,7 @@
 .bricks{
   background-color: brown;
   position: absolute;
+  border: 2px solid black;
 }
 .paddle {
   background-color: black;
